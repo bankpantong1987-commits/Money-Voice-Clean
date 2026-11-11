@@ -63,21 +63,32 @@ jobs:
               val text = extras.getCharSequence("android.text")?.toString() ?: ""
               val bigText = extras.getCharSequence("android.bigText")?.toString() ?: ""
               val all = title + " " + text + " " + bigText
-              var amount = ""
+              var word = "เงินเข้า"
+              if (all.contains("เงินออก")) {
+                word = "เงินออก"
+              }
+              val idx = all.indexOf("จำนวน")
+              var after = all
+              if (idx >= 0) {
+                after = all.substring(idx + 6)
+              }
               var current = ""
-              for (ch in all) {
-                if (ch.isDigit() || ch == ',') {
+              var amount = ""
+              for (ch in after) {
+                if (ch.isDigit() || ch == ',' || ch == '.') {
                   current = current + ch
                 } else {
                   if (current.length >= 1) {
-                    amount = current.replace(",", "")
                     break
                   }
-                  current = ""
                 }
               }
+              amount = current.replace(",", "")
+              if (amount.endsWith(".00")) {
+                amount = amount.substring(0, amount.length - 3)
+              }
               if (amount.isNotEmpty()) {
-                val msg = "เงินเข้า " + amount + " บาท"
+                val msg = word + " " + amount + " บาท"
                 tts?.speak(msg, TextToSpeech.QUEUE_FLUSH, null, "moneyvoice")
               }
             }
