@@ -35,9 +35,53 @@ jobs:
           sed -i 's/1.9.22/2.2.0/g' android/build.gradle.kts || true
           flutter pub get
           PUB_FILE=$(find ~/.pub-cache -path "*notification_listener_service-*/android/build.gradle" | head -1)
-          if [ -n "$PUB_FILE" ]; then sed -i 's/^android {/android {\n    namespace = "com.notification_listener_service"/' "$PUB_FILE" || true; echo "Patched $PUB_FILE"; fi
+          if [ -n "$PUB_FILE" ]; then sed -i 's/^android {/android {\n    namespace = "com.notification_listener_service"/' "$PUB_FILE" || true; fi
           MANIFEST_FILE=$(find ~/.pub-cache -path "*notification_listener_service-*/android/src/main/AndroidManifest.xml" | head -1)
-          if [ -n "$MANIFEST_FILE" ]; then sed -i 's/ package="[^"]*"//g' "$MANIFEST_FILE" || true; echo "Patched $MANIFEST_FILE"; fi
+          if [ -n "$MANIFEST_FILE" ]; then sed -i 's/ package="[^"]*"//g' "$MANIFEST_FILE" || true; fi
+          mkdir -p android/app/src/main/kotlin/com/moneyvoice/app
+          cat > android/app/src/main/kotlin/com/moneyvoice/app/MyListener.kt <<'EOF'
+          package com.moneyvoice.app
+          import android.service.notification.NotificationListenerService
+          import android.service.notification.StatusBarNotification
+          import android.speech.tts.TextToSpeech
+          import java.util.Locale
+          import java.util.regex.Pattern
+          class MyListener : NotificationListenerService() {
+            private var tts: TextToSpeech? = null
+            override fun onCreate() {
+              super.onCreate()
+              tts = TextToSpeech(applicationContext) { status ->
+                if (status == TextToSpeech.SUCCESS) { tts?.language = Locale("th", "TH") }
+              }
+            }
+            override fun onNotificationPosted(sbn: StatusBarNotification?) {
+              super.onNotificationPosted(sbn)
+              try {
+                val extras = sbn?.notification?.extras
+                val title = extras?.getCharSequence("android.title")?.toString() ?: ""
+                val text = extras?.getCharSequence("android.text")?.toString() ?: ""
+                val all = "$title $text"
+                val m = Pattern.compile("\\d[\\d,]*\\.?\\d*").matcher(all)
+                if (m.find()) {
+                  val amount = m.group()?.replace(",", "") ?: ""
+                  if (amount.isNotEmpty()) {
+                    tts?.speak("เงินเข้า $amount บาท", TextToSpeech.QUEUE_FLUSH, null, "moneyvoice")
+                  }
+                }
+              } catch (e: Exception) {}
+            }
+            override fun onDestroy() { tts?.shutdown(); super.onDestroy() }
+          }
+          EOF
+          python3 -c "
+          import pathlib
+          p = pathlib.Path('android/app/src/main/AndroidManifest.xml')
+          t = p.read_text()
+          if 'MyListener' not in t:
+              t = t.replace('</application>', '<service android:name=\".MyListener\" android:permission=\"android.permission.BIND_NOTIFICATION_LISTENER_SERVICE\" android:exported=\"true\"><intent-filter><action android:name=\"android.service.notification.NotificationListenerService\" /></intent-filter></service></application>')
+              p.write_text(t)
+          print('Manifest patched')
+          "
       - name: Build APK
         run: flutter build apk --release
       - name: Upload APK
