@@ -14,7 +14,7 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0'
+          flutter-version: '3.32.0'
           channel: 'stable'
       - name: Repair Android folder
         run: |
@@ -23,6 +23,11 @@ jobs:
           flutter create --project-name money_voice --org com.moneyvoice.app --platforms android --overwrite .
           cp /tmp/main.dart lib/main.dart
           cp /tmp/pubspec.yaml pubspec.yaml
+          sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle
+          sed -i 's/compileSdkVersion.*/compileSdkVersion 36/' android/app/build.gradle
+          sed -i "s/kotlin_version = '.*'/kotlin_version = '2.2.0'/" android/build.gradle
+          sed -i 's/1.9.22/2.2.0/g' android/settings.gradle
+          sed -i 's/1.9.22/2.2.0/g' android/build.gradle
           flutter pub get
       - name: Build APK
         run: flutter build apk --release
