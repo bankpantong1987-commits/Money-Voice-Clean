@@ -16,8 +16,14 @@ jobs:
         with:
           flutter-version: '3.22.0'
           channel: 'stable'
-      - name: Get packages
-        run: flutter pub get
+      - name: Repair Android folder
+        run: |
+          cp lib/main.dart /tmp/main.dart
+          cp pubspec.yaml /tmp/pubspec.yaml
+          flutter create --project-name money_voice --org com.moneyvoice.app --platforms android --overwrite .
+          cp /tmp/main.dart lib/main.dart
+          cp /tmp/pubspec.yaml pubspec.yaml
+          flutter pub get
       - name: Build APK
         run: flutter build apk --release
       - name: Upload APK
