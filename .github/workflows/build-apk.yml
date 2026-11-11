@@ -34,6 +34,8 @@ jobs:
           sed -i 's/1.9.22/2.2.0/g' android/settings.gradle.kts || true
           sed -i 's/1.9.22/2.2.0/g' android/build.gradle.kts || true
           flutter pub get
+          PUB_FILE=$(find ~/.pub-cache -path "*notification_listener_service-*/android/build.gradle" | head -1)
+          if [ -n "$PUB_FILE" ]; then sed -i 's/^android {/android {\n    namespace = "com.notification_listener_service"/' "$PUB_FILE" || true; echo "Patched $PUB_FILE"; fi
       - name: Build APK
         run: flutter build apk --release
       - name: Upload APK
