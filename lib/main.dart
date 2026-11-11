@@ -55,54 +55,71 @@ class _MoneyVoiceAppState extends State<MoneyVoiceApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: const Color(0xFFF6F1E7),
+        backgroundColor: const Color(0xFFFFF3D6),
         body: SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Money Voice', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-                const Text('เงินเข้า พูดให้ฟังทันที', style: TextStyle(fontSize: 16)),
-                const SizedBox(height: 20),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(colors: [Color(0xFF1BA94A), Color(0xFF00C853)]),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('💰 Money Voice', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
+                      SizedBox(height: 6),
+                      Text('เงินเข้า พูดให้ฟังทันที', style: TextStyle(fontSize: 16, color: Colors.white)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)]),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('รายการล่าสุด'),
-                      Text(lastText, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      const Text('📩 รายการล่าสุด', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                      const SizedBox(height: 6),
+                      Text(lastText, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1BA94A))),
                     ],
                   ),
                 ),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
+                  height: 56,
                   child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF9800), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
                     onPressed: () => speak('เงินเข้า 350 บาท'),
-                    child: const Text('ทดลองฟังเสียงไทย - เงินเข้า 350 บาท'),
+                    child: const Text('🔊 ทดลองฟังเสียงไทย - เงินเข้า 350 บาท', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
+                  height: 56,
                   child: ElevatedButton(
-                    onPressed: () async {
-                      await NotificationListenerService.requestPermission();
-                    },
-                    child: const Text('เปิดการอ่านแจ้งเตือน'),
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2196F3), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+                    onPressed: () async { await NotificationListenerService.requestPermission(); },
+                    child: const Text('🔔 เปิดการอ่านแจ้งเตือน', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('สมัคร Pro เพื่อใช้งานเบื้องหลัง', style: TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
+                const Text('✨ สมัคร Pro เพื่อใช้งานเบื้องหลัง', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
                 Row(
                   children: [
-                    Expanded(child: _proCard('รายเดือน', '30 บาท/เดือน', 'ทดลองฟรี 3 วัน')),
+                    Expanded(child: _proCard('รายเดือน', '30 บาท/เดือน', 'ทดลองฟรี 3 วัน', const Color(0xFFE8F5E9))),
                     const SizedBox(width: 12),
-                    Expanded(child: _proCard('รายปี', '249 บาท/ปี', 'ทดลองฟรี 3 วัน')),
+                    Expanded(child: _proCard('รายปี', '249 บาท/ปี', 'ทดลองฟรี 3 วัน', const Color(0xFFFFF3E0))),
                   ],
                 ),
               ],
@@ -113,16 +130,17 @@ class _MoneyVoiceAppState extends State<MoneyVoiceApp> {
     );
   }
 
-  Widget _proCard(String title, String price, String trial) {
+  Widget _proCard(String title, String price, String trial, Color bg) {
     return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(18), border: Border.all(color: Colors.black12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
           Text(price, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          Text(trial),
+          Text(trial, style: const TextStyle(color: Colors.grey)),
         ],
       ),
     );
