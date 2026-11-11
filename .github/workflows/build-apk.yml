@@ -39,40 +39,54 @@ jobs:
           MANIFEST_FILE=$(find ~/.pub-cache -path "*notification_listener_service-*/android/src/main/AndroidManifest.xml" | head -1)
           if [ -n "$MANIFEST_FILE" ]; then sed -i 's/ package="[^"]*"//g' "$MANIFEST_FILE" || true; fi
           mkdir -p android/app/src/main/kotlin/com/moneyvoice/app
-          cat > android/app/src/main/kotlin/com/moneyvoice/app/MyListener.kt <<'EOF'
+          cat > android/app/src/main/kotlin/com/moneyvoice/app/MyListener.kt <<'ENDOFFILE'
           package com.moneyvoice.app
           import android.service.notification.NotificationListenerService
           import android.service.notification.StatusBarNotification
           import android.speech.tts.TextToSpeech
           import java.util.Locale
-          import java.util.regex.Pattern
           class MyListener : NotificationListenerService() {
             private var tts: TextToSpeech? = null
             override fun onCreate() {
               super.onCreate()
               tts = TextToSpeech(applicationContext) { status ->
-                if (status == TextToSpeech.SUCCESS) { tts?.language = Locale("th", "TH") }
+                if (status == TextToSpeech.SUCCESS) {
+                  tts?.language = Locale("th", "TH")
+                }
               }
             }
             override fun onNotificationPosted(sbn: StatusBarNotification?) {
               super.onNotificationPosted(sbn)
-              try {
-                val extras = sbn?.notification?.extras
-                val title = extras?.getCharSequence("android.title")?.toString() ?: ""
-            val text = extras?.getCharSequence("android.text")?.toString() ?: ""
-            val bigText = extras?.getCharSequence("android.bigText")?.toString() ?: ""
-            val subText = extras?.getCharSequence("android.subText")?.toString() ?: ""
-            val summary = extras?.getCharSequence("android.summaryText")?.toString() ?: ""
-            val all = "$title $text $bigText $subText $summary"
-                  if (amount.isNotEmpty()) {
-                    tts?.speak("เงินเข้า $amount บาท", TextToSpeech.QUEUE_FLUSH, null, "moneyvoice")
+              val extras = sbn?.notification?.extras
+              if (extras == null) return
+              val title = extras.getCharSequence("android.title")?.toString() ?: ""
+              val text = extras.getCharSequence("android.text")?.toString() ?: ""
+              val bigText = extras.getCharSequence("android.bigText")?.toString() ?: ""
+              val all = title + " " + text + " " + bigText
+              var amount = ""
+              var current = ""
+              for (ch in all) {
+                if (ch.isDigit() || ch == ',') {
+                  current = current + ch
+                } else {
+                  if (current.length >= 1) {
+                    amount = current.replace(",", "")
+                    break
                   }
+                  current = ""
                 }
-              } catch (e: Exception) {}
+              }
+              if (amount.isNotEmpty()) {
+                val msg = "เงินเข้า " + amount + " บาท"
+                tts?.speak(msg, TextToSpeech.QUEUE_FLUSH, null, "moneyvoice")
+              }
             }
-            override fun onDestroy() { tts?.shutdown(); super.onDestroy() }
+            override fun onDestroy() {
+              tts?.shutdown()
+              super.onDestroy()
+            }
           }
-          EOF
+          ENDOFFILE
           python3 -c "
           import pathlib
           p = pathlib.Path('android/app/src/main/AndroidManifest.xml')
