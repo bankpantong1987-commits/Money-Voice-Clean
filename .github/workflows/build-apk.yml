@@ -26,6 +26,9 @@ jobs:
           cp /tmp/pubspec.yaml pubspec.yaml
           sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle.kts || true
           sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle || true
+          sed -i 's/minSdk.*/minSdk = 24/' android/app/build.gradle.kts || true
+          sed -i 's/minSdkVersion.*/minSdkVersion 24/' android/app/build.gradle || true
+          sed -i 's/minSdkVersion = 21/minSdkVersion = 24/g' android/app/build.gradle.kts || true
           sed -i 's/2.1.0/2.2.0/g' android/settings.gradle.kts || true
           sed -i 's/2.1.0/2.2.0/g' android/settings.gradle || true
           sed -i 's/1.9.22/2.2.0/g' android/settings.gradle.kts || true
