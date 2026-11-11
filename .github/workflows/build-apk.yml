@@ -24,11 +24,12 @@ jobs:
           flutter create --project-name money_voice --org com.moneyvoice.app --platforms android .
           cp /tmp/main.dart lib/main.dart
           cp /tmp/pubspec.yaml pubspec.yaml
-          sed -i '/repositoriesMode/d' android/settings.gradle
-          sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle
-          sed -i 's/compileSdkVersion.*/compileSdkVersion 36/' android/app/build.gradle
-          sed -i 's/1.9.22/2.2.0/g' android/settings.gradle
-          sed -i 's/1.9.22/2.2.0/g' android/build.gradle
+          sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle.kts || true
+          sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle || true
+          sed -i 's/2.1.0/2.2.0/g' android/settings.gradle.kts || true
+          sed -i 's/2.1.0/2.2.0/g' android/settings.gradle || true
+          sed -i 's/1.9.22/2.2.0/g' android/settings.gradle.kts || true
+          sed -i 's/1.9.22/2.2.0/g' android/build.gradle.kts || true
           flutter pub get
       - name: Build APK
         run: flutter build apk --release
