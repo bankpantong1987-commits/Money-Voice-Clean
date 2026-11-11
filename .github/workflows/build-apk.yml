@@ -20,12 +20,13 @@ jobs:
         run: |
           cp lib/main.dart /tmp/main.dart
           cp pubspec.yaml /tmp/pubspec.yaml
-          flutter create --project-name money_voice --org com.moneyvoice.app --platforms android --overwrite .
+          rm -rf android
+          flutter create --project-name money_voice --org com.moneyvoice.app --platforms android .
           cp /tmp/main.dart lib/main.dart
           cp /tmp/pubspec.yaml pubspec.yaml
+          sed -i '/repositoriesMode/d' android/settings.gradle
           sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle
           sed -i 's/compileSdkVersion.*/compileSdkVersion 36/' android/app/build.gradle
-          sed -i "s/kotlin_version = '.*'/kotlin_version = '2.2.0'/" android/build.gradle
           sed -i 's/1.9.22/2.2.0/g' android/settings.gradle
           sed -i 's/1.9.22/2.2.0/g' android/build.gradle
           flutter pub get
