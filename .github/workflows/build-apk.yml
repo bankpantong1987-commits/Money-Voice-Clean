@@ -59,11 +59,11 @@ jobs:
               try {
                 val extras = sbn?.notification?.extras
                 val title = extras?.getCharSequence("android.title")?.toString() ?: ""
-                val text = extras?.getCharSequence("android.text")?.toString() ?: ""
-                val all = "$title $text"
-                val m = Pattern.compile("\\d[\\d,]*\\.?\\d*").matcher(all)
-                if (m.find()) {
-                  val amount = m.group()?.replace(",", "") ?: ""
+            val text = extras?.getCharSequence("android.text")?.toString() ?: ""
+            val bigText = extras?.getCharSequence("android.bigText")?.toString() ?: ""
+            val subText = extras?.getCharSequence("android.subText")?.toString() ?: ""
+            val summary = extras?.getCharSequence("android.summaryText")?.toString() ?: ""
+            val all = "$title $text $bigText $subText $summary"
                   if (amount.isNotEmpty()) {
                     tts?.speak("เงินเข้า $amount บาท", TextToSpeech.QUEUE_FLUSH, null, "moneyvoice")
                   }
